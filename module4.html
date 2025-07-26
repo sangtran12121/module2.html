@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư Viện Ảnh Tương Tác</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        #gallery-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #main-image {
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            border: 3px solid #3498db;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ecf0f1;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: all 0.3s ease;
+        }
+        
+        #main-image p {
+            color: #7f8c8d;
+            font-size: 1.5em;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .thumbnail-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .thumbnail:hover, 
+        .thumbnail:focus {
+            transform: scale(1.05);
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            outline: none;
+        }
+        
+        .caption {
+            text-align: center;
+            margin-top: 5px;
+            color: #34495e;
+            font-size: 0.9em;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thư Viện Ảnh Tương Tác</h1>
+    
+    <div id="gallery-container">
+        <div id="main-image" tabindex="0" aria-live="polite">
+            <p>Di chuột hoặc dùng phím Tab để chọn ảnh từ thư viện bên dưới</p>
+        </div>
+        
+        <div class="thumbnail-container" id="thumbnail-gallery">
+            <!-- Các ảnh sẽ được thêm tự động bằng JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Trang đã tải xong - Khởi tạo thư viện ảnh');
+            
+            // Danh sách ảnh với alt text
+            const images = [
+                {
+                    src: 'https://images.pexels.com/photos/2071873/pexels-photo-2071873.jpeg',
+                    alt: 'Cute cat - Một chú mèo con dễ thương với đôi mắt to tròn',
+                    caption: 'Mèo con dễ thương'
+                },
+                {
+                    src: 'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg',
+                    alt: 'Dog in the rain - Chú chó đứng dưới mưa với vẻ mặt tò mò',
+                    caption: 'Chó dưới mưa'
+                },
+                {
+                    src: 'https://images.pexels.com/photos/2023384/pexels-photo-2023384.jpeg',
+                    alt: 'Sleepy dog - Chú chó đang ngủ say với tư thế thoải mái',
+                    caption: 'Chó ngủ say'
+                },
+                {
+                    src: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg',
+                    alt: 'Two puppies - Hai chú cún con đang chơi đùa với nhau',
+                    caption: 'Hai chú cún'
+                },
+                {
+                    src: 'https://images.pexels.com/photos/4587955/pexels-photo-4587955.jpeg',
+                    alt: 'Cat in sunlight - Chú mèo nằm tắm nắng bên cửa sổ',
+                    caption: 'Mèo tắm nắng'
+                },
+                {
+                    src: 'https://images.pexels.com/photos/39317/chihuahua-dog-puppy-cute-39317.jpeg',
+                    alt: 'Small dog - Chú chó nhỏ với đôi mắt long lanh',
+                    caption: 'Chú chó nhỏ'
+                }
+            ];
+
+            const thumbnailContainer = document.getElementById('thumbnail-gallery');
+            const mainImage = document.getElementById('main-image');
+            const mainImageText = mainImage.querySelector('p');
+
+            // Tạo thumbnail cho mỗi ảnh
+            images.forEach((image, index) => {
+                const thumbnailWrapper = document.createElement('div');
+                thumbnailWrapper.className = 'thumbnail-wrapper';
+                
+                const thumbnail = document.createElement('img');
+                thumbnail.src = image.src;
+                thumbnail.alt = image.alt;
+                thumbnail.className = 'thumbnail';
+                thumbnail.tabIndex = 0; // Thêm tabindex cho khả năng tiếp cận
+                thumbnail.dataset.index = index;
+                
+                const caption = document.createElement('div');
+                caption.className = 'caption';
+                caption.textContent = image.caption;
+                
+                // Thêm sự kiện mouseover/focus
+                thumbnail.addEventListener('mouseover', function() {
+                    updateMainImage(this);
+                });
+                
+                thumbnail.addEventListener('focus', function() {
+                    updateMainImage(this);
+                    console.log('Ảnh được focus:', this.alt);
+                });
+                
+                // Thêm sự kiện mouseout/blur
+                thumbnail.addEventListener('mouseout', resetMainImage);
+                thumbnail.addEventListener('blur', function() {
+                    console.log('Ảnh bị blur:', this.alt);
+                });
+                
+                // Thêm sự kiện click (cho thiết bị touch)
+                thumbnail.addEventListener('click', function() {
+                    updateMainImage(this);
+                });
+                
+                thumbnailWrapper.appendChild(thumbnail);
+                thumbnailWrapper.appendChild(caption);
+                thumbnailContainer.appendChild(thumbnailWrapper);
+            });
+
+            // Hàm cập nhật ảnh chính
+            function updateMainImage(thumbnail) {
+                mainImage.style.backgroundImage = `url(${thumbnail.src})`;
+                mainImageText.textContent = thumbnail.alt;
+                mainImageText.className = 'sr-only'; // Ẩn text nhưng vẫn đọc được bởi screen reader
+                console.log('Đang hiển thị:', thumbnail.alt);
+            }
+
+            // Hàm reset ảnh chính
+            function resetMainImage() {
+                mainImage.style.backgroundImage = '';
+                mainImageText.textContent = 'Di chuột hoặc dùng phím Tab để chọn ảnh từ thư viện bên dưới';
+                mainImageText.className = '';
+            }
+
+            // Thêm sự kiện onload
+            window.addEventListener('load', function() {
+                console.log('Tất cả tài nguyên đã tải xong');
+                // Thêm tabindex cho tất cả thumbnail
+                document.querySelectorAll('.thumbnail').forEach((img, i) => {
+                    img.tabIndex = i + 1;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
